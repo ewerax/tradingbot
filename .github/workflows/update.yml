@@ -1,0 +1,33 @@
+name: Auto Update MNQ Candles
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # runs every 5 minutes
+  workflow_dispatch:        # allows manual run
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run update script
+        run: python update_mnq.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add mnq.json
+          git commit -m "Auto-update MNQ candles" || echo "No changes to commit"
+          git push
